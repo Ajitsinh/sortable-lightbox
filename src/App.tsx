@@ -82,7 +82,7 @@ export default function App() {
           <PhotoAlbum
             layout="rows"
             photos={photos}
-            render={(containerWidth, { photo, imageProps, wrapperStyle, index }) => (
+            renderPhoto={({ photo, imageProps, wrapperStyle, index }) => (
               <SortablePhoto
                 photo={photo}
                 index={index}
