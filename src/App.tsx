@@ -82,7 +82,7 @@ export default function App() {
           <PhotoAlbum
             layout="rows"
             photos={photos}
-            render={({
+            render={(containerWidth) => ({
               photo,
               imageProps,
               wrapperStyle,
