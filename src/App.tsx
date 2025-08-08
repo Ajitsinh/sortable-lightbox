@@ -1,6 +1,9 @@
 import { useState } from "react";
-import "yet-another-react-lightbox/styles.css";
-import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   arrayMove,
@@ -9,7 +12,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import PhotoAlbum, { Photo } from "react-photo-album";
+import PhotoAlbum, { type Photo } from "react-photo-album";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
@@ -23,9 +26,17 @@ interface SortablePhotoProps {
   photo: Photo;
   index: number;
   openLightbox: (index: number) => void;
+  imageProps: React.ImgHTMLAttributes<HTMLImageElement>;
+  wrapperStyle?: React.CSSProperties;
 }
 
-function SortablePhoto({ photo, index, openLightbox }: SortablePhotoProps) {
+function SortablePhoto({
+  photo,
+  index,
+  openLightbox,
+  imageProps,
+  wrapperStyle,
+}: SortablePhotoProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: index });
 
@@ -33,15 +44,16 @@ function SortablePhoto({ photo, index, openLightbox }: SortablePhotoProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     cursor: "grab",
+    ...wrapperStyle,
   };
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <img
-        src={photo.src}
-        alt=""
-        style={{ width: "100%", display: "block" }}
+        {...imageProps}
         onClick={() => openLightbox(index)}
+        style={{ ...imageProps.style, cursor: "grab" }}
+        alt={photo.alt ?? ""}
       />
     </div>
   );
@@ -51,22 +63,43 @@ export default function App() {
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active.id !== over?.id) {
-      setPhotos((items) => arrayMove(items, active.id as number, over?.id as number));
+      setPhotos((items) =>
+        arrayMove(items, active.id as number, over?.id as number)
+      );
     }
-  };
+  }
 
   return (
     <>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={photos.map((_, index) => index)} strategy={rectSortingStrategy}>
+        <SortableContext
+          items={photos.map((_, index) => index)}
+          strategy={rectSortingStrategy}
+        >
           <PhotoAlbum
             layout="rows"
             photos={photos}
-            renderPhoto={({ photo, index }) => (
-              <SortablePhoto photo={photo} index={index} openLightbox={setLightboxIndex} />
+            render={({
+              photo,
+              imageProps,
+              wrapperStyle,
+              index,
+            }: {
+              photo: Photo;
+              imageProps: React.ImgHTMLAttributes<HTMLImageElement>;
+              wrapperStyle?: React.CSSProperties;
+              index: number;
+            }) => (
+              <SortablePhoto
+                photo={photo}
+                index={index}
+                openLightbox={setLightboxIndex}
+                imageProps={imageProps}
+                wrapperStyle={wrapperStyle}
+              />
             )}
           />
         </SortableContext>
@@ -81,4 +114,3 @@ export default function App() {
     </>
   );
 }
-
