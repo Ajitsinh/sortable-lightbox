@@ -82,17 +82,7 @@ export default function App() {
           <PhotoAlbum
             layout="rows"
             photos={photos}
-            render={(containerWidth) => ({
-              photo,
-              imageProps,
-              wrapperStyle,
-              index,
-            }: {
-              photo: Photo;
-              imageProps: React.ImgHTMLAttributes<HTMLImageElement>;
-              wrapperStyle?: React.CSSProperties;
-              index: number;
-            }) => (
+            render={(containerWidth, { photo, imageProps, wrapperStyle, index }) => (
               <SortablePhoto
                 photo={photo}
                 index={index}
